@@ -1,0 +1,35 @@
+ИНСТРУКЦИЯ: ДОБАВЛЕНИЕ АВТОМАТИЧЕСКОГО СКАНИРОВАНИЯ GITHUB ACTIONS
+
+Почему папка .github/workflows может быть не видна:
+На iPhone/iPad папки, начинающиеся с точки, часто скрыты в приложении «Файлы».
+В архиве она ЕСТЬ: .github/workflows/trading-ai-autoscan.yml
+
+Вариант 1 — если GitHub получил скрытую папку:
+1. После загрузки проверьте, что в репозитории есть .github/workflows/trading-ai-autoscan.yml.
+2. Если есть — больше ничего делать не нужно.
+
+Вариант 2 — если iPhone не показывает .github:
+1. Откройте репозиторий GitHub в браузере.
+2. Нажмите Add file → Create new file.
+3. В имени файла укажите ПОЛНЫЙ путь:
+   .github/workflows/trading-ai-autoscan.yml
+4. Откройте файл из папки GITHUB_WORKFLOW_SETUP в этом архиве,
+   скопируйте всё содержимое и вставьте в редактор GitHub.
+5. Нажмите Commit changes.
+
+Не загружайте GITHUB_WORKFLOW_SETUP как замену пути .github/workflows.
+Это только видимая копия YAML для копирования через редактор GitHub.
+
+После этого:
+- Settings → Secrets and variables → Actions:
+  добавьте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID.
+- Settings → Actions → General:
+  разрешите Read and write permissions.
+- Actions → Trading AI 24x7 Paper Scanner → Run workflow.
+
+Папка .github/workflows — обязательный специальный путь GitHub Actions.
+Не переименовывайте её и не удаляйте точку в начале имени.
+
+ВАЖНО:
+Автоматический worker работает только после загрузки файлов проекта, добавления workflow,
+настройки секретов и успешного ручного запуска workflow. Сам архив не запускает бота.
