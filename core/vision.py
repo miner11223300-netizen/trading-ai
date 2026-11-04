@@ -3,8 +3,19 @@ import numpy as np
 
 def inspect_chart(image_bytes):
     arr=np.frombuffer(image_bytes,dtype=np.uint8)
-    image=cv2.imdecode(arr,cv2.IMREAD_COLOR)
-    if image is None: raise ValueError("Файл изображения не удалось прочитать.")
+    # Decode without assuming that the uploaded file is RGB/BGR: some PNGs
+    # are grayscale (2-D) or contain an alpha channel (4-D).
+    image=cv2.imdecode(arr,cv2.IMREAD_UNCHANGED)
+    if image is None:
+        raise ValueError("Файл изображения не удалось прочитать. Поддерживаются PNG, JPG и WEBP.")
+    if image.ndim == 2:
+        image=cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    elif image.ndim == 3 and image.shape[2] == 4:
+        image=cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    elif image.ndim == 3 and image.shape[2] == 3:
+        pass
+    else:
+        raise ValueError(f"Неподдерживаемый формат изображения: {image.shape}")
     h,w=image.shape[:2]
     hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
     green=cv2.inRange(hsv,np.array([35,35,35]),np.array([95,255,255]))
