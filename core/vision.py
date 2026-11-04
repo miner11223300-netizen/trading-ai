@@ -44,7 +44,10 @@ def inspect_chart(image_bytes):
                           minLineLength=max(45,int(w*0.15)),maxLineGap=8)
     horizontal=[]
     if lines is not None:
-        for item in lines[:,0,:]:
+        # OpenCV versions/builds may return HoughLinesP as (N, 1, 4)
+        # or (N, 4). Normalize both forms before iterating.
+        line_segments = np.asarray(lines).reshape(-1, 4)
+        for item in line_segments:
             x1,y1,x2,y2=map(int,item)
             if abs(y2-y1)<=2 and abs(x2-x1)>=max(45,int(w*0.15)):
                 horizontal.append({"y_pixel":int(round((y1+y2)/2)),"x_start":min(x1,x2),"x_end":max(x1,x2)})
