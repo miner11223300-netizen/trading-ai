@@ -1,9 +1,0 @@
-streamlit>=1.36
-pandas>=2.1
-numpy>=1.26
-ccxt>=4.3
-scikit-learn>=1.4
-opencv-python-headless>=4.9
-yfinance>=0.2.40
-requests>=2.31
-matplotlib>=3.8\npsycopg2-binary>=2.9.9\n
