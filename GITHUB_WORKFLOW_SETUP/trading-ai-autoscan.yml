@@ -1,0 +1,57 @@
+name: Trading AI Minute Position Monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trading-ai-autonomous-worker
+  cancel-in-progress: false
+
+jobs:
+  monitor-and-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout persistent paper state
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run minute monitor and independent signal scanner
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SCAN_TIMEFRAME: "1h"
+          MAX_OPEN_POSITIONS: "10"
+          WORKER_RUNTIME_SECONDS: "270"
+          SIGNAL_SCAN_INTERVAL_SECONDS: "900"
+        run: python auto_worker.py
+
+      - name: Persist paper trading database
+        if: always()
+        run: |
+          if [ -f trading_ai_paper.db ]; then
+            git config user.name "trading-ai-bot"
+            git config user.email "trading-ai-bot@users.noreply.github.com"
+            git add trading_ai_paper.db
+            if ! git diff --cached --quiet; then
+              git commit -m "chore: persist paper trading state [skip ci]"
+              git push origin HEAD:main
+            fi
+          fi
